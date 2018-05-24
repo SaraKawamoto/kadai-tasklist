@@ -1,5 +1,7 @@
 <?php
 
+Route::get('/', 'TasksController@index');
+Route::resource('tasks', 'TasksController');
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -11,6 +13,4 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+
