@@ -3,10 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
 use App\Http\Requests;
-
-use App\Task; 
+use App\Http\Controllers\Controller;
 
 
 class TasksController extends Controller
@@ -17,14 +15,23 @@ class TasksController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index()
-    {
-         $tasks = Task::all();
+   
+{
+        $data = [];
+        if (\Auth::check()) {
+            $user = \Auth::user();
+            $tasks = $user->taskts()->orderBy('created_at', 'desc')->paginate(10);
 
-        return view('tasks.index', [
-            'tasks' => $tasks,
- ]);
+            $data = [
+                'user' => $user,
+                'tasks' => $tasks,
+            ];
+            $data += $this->counts($user);
+            return view('users.show', $data);
+        }else {
+            return view('welcome');
+        }
     }
-
     /**
      * Show the form for creating a new resource.
      *
@@ -57,6 +64,10 @@ class TasksController extends Controller
          $task->status = $request->status; 
         $task->content = $request->content;
         $task->save();
+        
+         $request->user()->tasks()->create([
+            'content' => $request->content,
+       ]);
 
         return redirect('/');
 
@@ -126,7 +137,11 @@ class TasksController extends Controller
     public function destroy($id)
     {
         $task = Task::find($id);
-        $task->delete();
+        
+         if (\Auth::user()->id === $task->user_id) {
+            $task->delete();
+        }
+
 
         return redirect('/');
 

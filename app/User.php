@@ -8,6 +8,10 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 class User extends Authenticatable
 {
     use Notifiable;
+public function tasklists()
+    {
+        return $this->hasMany(Tasklist::class);
+    }
 
     /**
      * The attributes that are mass assignable.
